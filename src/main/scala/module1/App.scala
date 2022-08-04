@@ -35,6 +35,5 @@ object App {
     }
 
     threads.printRunningTime(rates)
-
   }
 }

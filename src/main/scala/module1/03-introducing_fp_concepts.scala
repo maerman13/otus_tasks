@@ -193,10 +193,6 @@ object hof{
 }
 
 
-
-
-
-
 /**
  *  Реализуем тип Option
  */
@@ -217,7 +213,6 @@ object hof{
 
   trait Option[+T]{
 
-
     def isEmpty: Boolean = this match {
       case Option.None => true
       case Option.Some(v) => false
@@ -236,12 +231,40 @@ object hof{
       case Option.Some(v) => f(v)
     }
 
+    /**
+     *
+     * Реализовать метод printIfAny, который будет печатать значение, если оно есть
+     */
+
+    def printIfAny: Unit = this match {
+      case Option.Some(v) => println(v)
+    }
+
+    /**
+     *
+     * Реализовать метод zip, который будет создавать Option от пары значений из 2-х Option
+     */
+
+    def zip[A1 >: T, B](option2: Option[B]): Option[(T, B)]  = {
+      Option.Some[(T, B)]((this.get, option2.get))
+    }
+
+    /**
+     *
+     * Реализовать метод filter, который будет возвращать не пустой Option
+     * в случае если исходный не пуст и предикат от значения = true
+     */
+
+    def filter(p: T => Boolean): Option[T] = {
+      if (!this.isEmpty) this
+      else Option.None
+    }
+
   }
 
   val a: Option[Int] = ???
 
   val r: Option[Int] = a.map(i => i + 1)
-
 
   object Option{
 
@@ -250,102 +273,160 @@ object hof{
 
     def apply[T](v: T): Option[T] = Some(v)
   }
-
-
-  /**
-   *
-   * Реализовать метод printIfAny, который будет печатать значение, если оно есть
-   */
-
-
-  /**
-   *
-   * Реализовать метод zip, который будет создавать Option от пары значений из 2-х Option
-   */
-
-
-  /**
-   *
-   * Реализовать метод filter, который будет возвращать не пустой Option
-   * в случае если исходный не пуст и предикат от значения = true
-   */
-
  }
 
- object list {
-   /**
-    *
-    * Реализовать односвязанный иммутабельный список List
-    * Список имеет два случая:
-    * Nil - пустой список
-    * Cons - непустой, содердит первый элемент (голову) и хвост (оставшийся список)
-    */
-
-    trait List[+T]{
-
-     def ::[TT >: T](elem: TT): List[TT] = ???
-
-   }
-
-   object List{
-     case class ::[A](head: A, tail: List[A]) extends List[A]
-     case object Nil extends List[Nothing]
 
 
-     def apply[A](v: A*): List[A] = if(v.isEmpty) List.Nil
-      else new ::(v.head, apply(v.tail:_*))
-   }
+object list {
+  /**
+   *
+   * Реализовать односвязанный иммутабельный список List
+   * Список имеет два случая:
+   * Nil - пустой список
+   * Cons - непустой, содердит первый элемент (голову) и хвост (оставшийся список)
+   */
 
-   case class A(var a: String)
+  trait List[+T]{
 
+    def get(): T = {
+      this match {
+        case List.::(x, y) => x
+      }
+    }
 
-   println("test")
+    def getNext[TT >: T](): List[T] = {
+      this match {
+        case List.::(x, y) => y
+        case _ => {
+          println("null")
+          null
+        }
+      }
+    }
 
-   /**
+    def getPrevious[TT >: T](): List[T] = {
+      this match {
+        case List.::(x, y) => y
+        case _ => {
+          println("null")
+          null
+        }
+      }
+    }
+
+    def isEmpty[TT >: T](): Boolean = {
+      this match {
+        case List.::(x, y) => false
+        case List.Nil => true
+      }
+    }
+
+    /**
      * Метод cons, добавляет элемент в голову списка, для этого метода можно воспользоваться названием `::`
      *
      */
 
-    /**
-      * Метод mkString возвращает строковое представление списка, с учетом переданного разделителя
-      *
-      */
+    def cons[TT >: T](elem: TT): List[TT] = {
+      List.::(elem, this.asInstanceOf[List[TT]])
+    }
 
     /**
-      * Конструктор, позволяющий создать список из N - го числа аргументов
-      * Для этого можно воспользоваться *
-      * 
-      * Например вот этот метод принимает некую последовательность аргументов с типом Int и выводит их на печать
-      * def printArgs(args: Int*) = args.foreach(println(_))
-      */
+     * Метод mkString возвращает строковое представление списка, с учетом переданного разделителя
+     *
+     */
+
+    def mkString(delimeter: String): String = {
+      var stringRepresentaion: String = ""
+      var currentList = this
+      while(!currentList.isEmpty()) {
+        stringRepresentaion += currentList.get()
+        if (!currentList.getNext().isEmpty()) stringRepresentaion += delimeter
+        currentList = currentList.getNext()
+      }
+      stringRepresentaion
+    }
 
     /**
-      *
-      * Реализовать метод reverse который позволит заменить порядок элементов в списке на противоположный
-      */
+     *
+     * Реализовать метод reverse который позволит заменить порядок элементов в списке на противоположный
+     */
+
+    def reverse[TT >: T](): List[T] = {
+      var reserseList = List[T]()
+      var currentList = this
+      while(!currentList.isEmpty()) {
+        reserseList = reserseList.cons(currentList.get())
+        currentList = currentList.getNext()
+      }
+      reserseList
+    }
 
     /**
-      *
-      * Реализовать метод map для списка который будет применять некую ф-цию к элементам данного списка
-      */
+     *
+     * Реализовать метод map для списка который будет применять некую ф-цию к элементам данного списка
+     */
 
-
-    /**
-      *
-      * Реализовать метод filter для списка который будет фильтровать список по некому условию
-      */
-
-    /**
-      *
-      * Написать функцию incList котрая будет принимать список Int и возвращать список,
-      * где каждый элемент будет увеличен на 1
-      */
-
+    def map[TT >: T](func: T => TT): List[T] = {
+      var mapList = List[T]()
+      var currentList = this
+      while(!currentList.isEmpty()) {
+        mapList = mapList.cons(func(currentList.get()).asInstanceOf[T])
+        currentList = currentList.getNext()
+      }
+      mapList.reverse()
+    }
 
     /**
-      *
-      * Написать функцию shoutString котрая будет принимать список String и возвращать список,
-      * где к каждому элементу будет добавлен префикс в виде '!'
-      */
+     *
+     * Реализовать метод filter для списка который будет фильтровать список по некому условию
+     */
 
- }
+    def filter[TT >: T](p: T => Boolean): List[T] = {
+      var filtredList = List[T]()
+      var currentList = this
+      while(!currentList.isEmpty()) {
+        if(p(currentList.get())) {
+          filtredList = filtredList.cons(currentList.get())
+        }
+        currentList = currentList.getNext()
+      }
+      filtredList.reverse()
+    }
+
+    /**
+     *
+     * Написать функцию incList котрая будет принимать список Int и возвращать список,
+     * где каждый элемент будет увеличен на 1
+     */
+
+    def incList(intList: List[Int]): List[Int] = {
+      intList.map(x => x + 1)
+    }
+
+    /**
+     *
+     * Написать функцию shoutString котрая будет принимать список String и возвращать список,
+     * где к каждому элементу будет добавлен префикс в виде '!'
+     */
+
+    def shoutString(stingList: List[String]) = {
+      stingList.map(x => "!" + x)
+    }
+  }
+
+  object List{
+    case class ::[A](head: A, tail: List[A]) extends List[A]
+    case object Nil extends List[Nothing]
+
+    /**
+     * Конструктор, позволяющий создать список из N - го числа аргументов
+     * Для этого можно воспользоваться *
+     *
+     * Например вот этот метод принимает некую последовательность аргументов с типом Int и выводит их на печать
+     * def printArgs(args: Int*) = args.foreach(println(_))
+     */
+
+    def apply[A](v: A*): List[A] = if(v.isEmpty) List.Nil
+    else new ::(v.head, apply(v.tail:_*))
+  }
+}
